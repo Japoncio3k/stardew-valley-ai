@@ -1,0 +1,22 @@
+[project]
+name = "stardew-valley-ai"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Japoncio3k",email = "gustavo.kamihara@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13, <4.0.0"
+dependencies = [
+    "langchain (>=1.0.8,<2.0.0)",
+    "langchain[openai] (>=1.0.8,<2.0.0)",
+    "langsmith (>=0.4.46,<0.5.0)",
+    "unstructured (>=0.18.20,<0.19.0)",
+    "types-requests (>=2.32.4.20250913,<3.0.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
