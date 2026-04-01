@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 
-from utils.print_with_timestamp import print_with_timestamp
+from data_ingestion.utils.print_with_timestamp import print_with_timestamp
 
 
 def singleton(class_):
