@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any
 
 from fastembed import TextEmbedding
 from qdrant_client import http
@@ -16,27 +16,27 @@ def get_embedding_model_size() -> int:
     return embedding_model.get_embedding_size(model_name=EMBEDDING_MODEL)
 
 
-def create_embedding_text(chunk: Dict[str, Any]) -> str:
+def create_embedding_text(chunk: dict[str, Any]) -> str:
     """Creates a combined text string for embedding from an enriched chunk."""
     return f"""
+    {chunk.get("table_summary", "") if chunk.get("is_table", False) else chunk.get("content")}
+    {chunk.get("hypothetical_questions", "")}\n
     {chunk.get("summary", "")}\n
     {chunk.get("keywords", "")}\n
     {chunk.get("source", "")}\n
-    {chunk.get("hypothetical_questions", "")}\n
-    {chunk.get("table_summary", "") if chunk.get("is_table", False) else chunk.get("content")}
     """
 
 
 def ingest_file(file_path: str, next_id: int, qdrant_ds: QdrantDatasource) -> int:
     """Ingests a single enriched chunks file into Qdrant. Returns the updated next_id."""
-    with open(file_path, "r", encoding="utf-8") as fp:
+    with open(file_path, encoding="utf-8") as fp:
         try:
             data = json.load(fp)
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON from file {file_path}: {e}")
             return next_id
 
-    points_to_upsert = []
+    points_to_upsert: list[http.models.PointStruct] = []
     texts_to_embed = []
     for chunk in data["items"]:
         texts_to_embed.append(create_embedding_text(chunk))

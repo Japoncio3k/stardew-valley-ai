@@ -1,12 +1,12 @@
 import os
 
-from dotenv import load_dotenv
+from fastembed.common.types import NumpyArray
 from qdrant_client import QdrantClient, http
+from qdrant_client.http.models import CollectionInfo, PointStruct, QueryResponse
 
 
 class QdrantDatasource:
-    def __init__(self):
-        load_dotenv()
+    def __init__(self) -> None:
         self.client = QdrantClient(
             url=os.environ.get("QDRANT_URL"),
             api_key=os.environ.get("QDRANT_API_KEY"),
@@ -31,14 +31,14 @@ class QdrantDatasource:
                 ),
             )
 
-    def upsert_points(self, collection_name: str, points: list) -> None:
+    def upsert_points(self, collection_name: str, points: list[PointStruct]) -> None:
         self.client.upsert(
             collection_name=collection_name,
             points=points,
             wait=True,
         )
 
-    def search(self, collection_name: str, query_vector, limit: int = 20):
+    def search(self, collection_name: str, query_vector: NumpyArray, limit: int = 20) -> QueryResponse:
         return self.client.query_points(
             collection_name=collection_name,
             query=query_vector,
@@ -46,5 +46,5 @@ class QdrantDatasource:
             with_payload=True,
         )
 
-    def get_collection_info(self, collection_name: str):
+    def get_collection_info(self, collection_name: str) -> CollectionInfo:
         return self.client.get_collection(collection_name=collection_name)

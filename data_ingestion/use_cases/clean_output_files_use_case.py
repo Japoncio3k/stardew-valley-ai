@@ -12,7 +12,7 @@ def clean_output_files(folder: str) -> None:
 
         print(f"Processing file: {file_name}")
 
-        with open(file_name, "r", encoding="utf-8") as fp:
+        with open(file_name, encoding="utf-8") as fp:
             content = fp.read()
             if content.strip() == "":
                 print(f"File is empty, deleting: {file_name}")

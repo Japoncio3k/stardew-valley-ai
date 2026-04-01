@@ -1,6 +1,7 @@
 import json
 import os
-from typing import Any, Iterator, Tuple
+from collections.abc import Iterator
+from typing import Any
 
 
 def save_crawl_progress(checked_urls: list[str], urls: list[str]) -> None:
@@ -13,11 +14,11 @@ def save_crawl_progress(checked_urls: list[str], urls: list[str]) -> None:
         fp.write(json.dumps(progress, ensure_ascii=False, indent=4))
 
 
-def load_crawl_progress() -> dict | None:
+def load_crawl_progress() -> dict[str, Any] | None:
     """Loads crawl progress from data.json, or returns None if it doesn't exist."""
     if os.path.exists("data.json"):
-        with open("data.json", "r") as fp:
-            return json.load(fp)
+        with open("data.json") as fp:
+            return json.load(fp)  # type:ignore
     return None
 
 
@@ -33,7 +34,7 @@ def save_enriched_chunks(url: str, chunks: list[dict[str, Any]]) -> None:
         )
 
 
-def load_enriched_chunks_from_folder(folder: str) -> Iterator[Tuple[str, Any]]:
+def load_enriched_chunks_from_folder(folder: str) -> Iterator[tuple[str, Any]]:
     """Iterates over enriched chunk JSON files in a folder, yielding (file_path, data)."""
     for file_name in os.listdir(folder):
         file_path = os.path.join(folder, file_name)
@@ -41,7 +42,7 @@ def load_enriched_chunks_from_folder(folder: str) -> Iterator[Tuple[str, Any]]:
         if not file_path.endswith(".json"):
             continue
 
-        with open(file_path, "r", encoding="utf-8") as fp:
+        with open(file_path, encoding="utf-8") as fp:
             try:
                 data = json.load(fp)
                 yield file_path, data
@@ -52,12 +53,10 @@ def load_enriched_chunks_from_folder(folder: str) -> Iterator[Tuple[str, Any]]:
 def save_ingestion_progress(used_files: list[str], next_id: int) -> None:
     """Saves the progress of processed files and current ID."""
     with open("used_files.json", "w", encoding="utf-8") as log_fp:
-        json.dump(
-            {"files": used_files, "next_id": next_id}, log_fp, indent=2, ensure_ascii=False
-        )
+        json.dump({"files": used_files, "next_id": next_id}, log_fp, indent=2, ensure_ascii=False)
 
 
-def load_ingestion_progress() -> dict:
+def load_ingestion_progress() -> dict[str, Any]:
     """Loads ingestion progress from used_files.json."""
-    with open("used_files.json", "r", encoding="utf-8") as log_fp:
-        return json.load(log_fp)
+    with open("used_files.json", encoding="utf-8") as log_fp:
+        return json.load(log_fp)  # type:ignore

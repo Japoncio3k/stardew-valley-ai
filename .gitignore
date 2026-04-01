@@ -5,3 +5,5 @@ __pycache__/
 .vscode
 .claude
 output
+used_files.json
+data.json

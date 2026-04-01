@@ -1,6 +1,8 @@
 import os
 import time
 
+from dotenv import load_dotenv
+
 from data_ingestion.data.local_files_datasource import (
     load_ingestion_progress,
     save_ingestion_progress,
@@ -15,7 +17,8 @@ from data_ingestion.use_cases.ingest_chunks_use_case import (
 folder_path = "output/"
 
 
-def main():
+def main() -> None:
+    load_dotenv()
     qdrant_ds = QdrantDatasource()
     used_files = []
     next_id = 0

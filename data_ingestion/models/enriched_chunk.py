@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -10,4 +9,4 @@ class EnrichedChunk(BaseModel):
     keywords: list[str]
     summary: str
     hypothetical_questions: list[str]
-    table_summary: Optional[str] = None
+    table_summary: str | None = None

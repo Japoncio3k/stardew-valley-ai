@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastembed import TextEmbedding
 from sentence_transformers import CrossEncoder
 
@@ -13,7 +15,7 @@ def search_knowledge(
     query: str,
     qdrant_ds: QdrantDatasource,
     top_k: int = 5,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Searches the knowledge base using vector similarity and cross-encoder reranking."""
     query_embedding = list(embedding_model.embed([query]))[0]
 
@@ -23,28 +25,28 @@ def search_knowledge(
         limit=20,
     )
 
-    rerank_pairs = [
-        [query, result.payload.get("content")] for result in search_results.points
-    ]
+    rerank_pairs: list[list[str]] = []
+    for point in search_results.points:
+        if point.payload:
+            rerank_pairs.append([query, point.payload.get("content")])  # type: ignore
     scores = cross_encoder_model.predict(rerank_pairs)
 
     for i, score in enumerate(scores):
         search_results.points[i].score = score
 
-    reranked_results = sorted(
-        search_results.points, key=lambda x: x.score, reverse=True
-    )
+    reranked_results = sorted(search_results.points, key=lambda x: x.score, reverse=True)
     print("  - Re-ranked the results using Cross-Encoder.")
 
     final_results = []
     for result in reranked_results[:top_k]:
-        final_results.append(
-            {
-                "source": result.payload.get("source"),
-                "content": result.payload.get("content"),
-                "summary": result.payload.get("summary"),
-                "rerank_score": float(result.score),
-            }
-        )
+        if result.payload:
+            final_results.append(
+                {
+                    "source": result.payload.get("source"),
+                    "content": result.payload.get("content"),
+                    "summary": result.payload.get("summary"),
+                    "rerank_score": float(result.score),
+                }
+            )
 
     return final_results

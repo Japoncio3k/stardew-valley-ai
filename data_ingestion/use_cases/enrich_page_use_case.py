@@ -1,7 +1,7 @@
 import re
 import time
 from datetime import datetime
-from typing import Any, List
+from typing import Any
 
 from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnableSerializable
@@ -19,26 +19,31 @@ def generate_enrichment_prompt(chunk_text: str, is_table: bool) -> str:
     chunk_text = re.sub(r"}", "}}", chunk_text)
     table_instruction = (
         """
-    Esse chunk é uma TABELA. Seu resumo deve descrever os principais pontos de dados e tendências, por exemplo: 'Esta tabela mostra que a fruta X é mais lucrativa na estação Y.'
+    Esse chunk é uma TABELA. Seu resumo deve descrever os principais pontos de dados e tendências,
+    por exemplo: 'Esta tabela mostra que a fruta X é mais lucrativa na estação Y.'
     """
         if is_table
         else "Esse chunk é um texto comum. Deixe o campo table_summary vazio."
     )
 
     prompt = f"""
-    Você é um especialista no jogo Stardew Valley. Analise o seguinte trecho de um documento relacionado ao jogo e gere os metadados especificados:
+    Você é um especialista no jogo Stardew Valley. Analise o seguinte trecho de um documento
+    relacionado ao jogo e gere os metadados especificados:
     {table_instruction}
     Chunk Content:
     ---
     {chunk_text}
     ---
     Requisitos de Metadados:
-    hypothetical_questions: Crie uma lista de 2-4 perguntas que poderiam ser feitas sobre o conteúdo do trecho. Inclua apenas perguntas que podem ser respondidas com informações do trecho. SEMPRE inclua as respostas retiradas do trecho no formato Pergunta:...; Resposta:.... Não mencione o trecho nas perguntas.
+    hypothetical_questions: Crie uma lista de 2-4 perguntas que poderiam ser feitas sobre o
+    conteúdo do trecho. Inclua apenas perguntas que podem ser respondidas com informações do
+    trecho. SEMPRE inclua as respostas retiradas do trecho no formato Pergunta:...; Resposta:....
+    Não mencione o trecho nas perguntas.
     """
     return prompt
 
 
-def create_chain(chunk: UnstructuredElement) -> RunnableSerializable:
+def create_chain(chunk: UnstructuredElement) -> RunnableSerializable[Any, Any]:
     is_table = "text_as_html" in chunk.metadata.to_dict()
     content = chunk.metadata.text_as_html if is_table else chunk.text
 
@@ -77,7 +82,7 @@ def enrich_chunk(chunk: UnstructuredElement, iterations: int = 0) -> ChunkMetada
 
 
 def enrich_page_chunks(
-    chunks: List[UnstructuredElement], url: str
+    chunks: list[UnstructuredElement], url: str
 ) -> list[dict[str, Any]]:
     """Enriches a list of chunks with LLM-generated metadata."""
     enriched_chunks = []

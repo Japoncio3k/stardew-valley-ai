@@ -1,6 +1,7 @@
 import re
+from typing import cast
 from urllib.parse import unquote
-from xml.dom.minidom import Element, Node, parseString
+from xml.dom.minidom import CDATASection, Comment, Element, Node, ProcessingInstruction, Text, parseString
 
 import requests
 from unstructured.chunking.title import chunk_by_title
@@ -53,7 +54,9 @@ def should_visit(url: str, urls: list[str]) -> bool:
     )
 
 
-def get_urls(content: Element, all_urls: list[str]) -> list[str]:
+def get_urls(
+    content: Element | ProcessingInstruction | Comment | Text | CDATASection, all_urls: list[str]
+) -> list[str]:
     """Gets all URLs from a page's content."""
     urls: list[str] = []
     if content.childNodes:
@@ -79,24 +82,18 @@ def get_content_from_page(html: str) -> Element:
         print("Error parsing HTML:", e)
         print(html)
         raise e
-    body = html_parsed.childNodes[1].childNodes[3]
+    nodes = html_parsed.childNodes
+    body = cast(Element, cast(Element, nodes.item(1)).childNodes.item(3))
     if len(body.childNodes) > 5:
-        content = (
-            html_parsed.childNodes[1]
-            .childNodes[3]
-            .childNodes[5]
-            .childNodes[9]
-            .childNodes[13]
-            .childNodes[1]
-        )
-        for child in content.childNodes:
+        content = cast(Element, cast(Element, cast(Element, cast(Element, cast(Element, nodes.item(1)).childNodes.item(3)).childNodes.item(5)).childNodes.item(9)).childNodes.item(13)).childNodes.item(1)  # noqa: E501
+        for child in content.childNodes:  # type: ignore[union-attr]
             if '<h2 id="mw-toc-heading">Índice</h2>' in child.toxml():
-                content.removeChild(child)
+                content.removeChild(child)  # type: ignore[union-attr]
                 break
     else:
-        content = html_parsed.childNodes[1].childNodes[3].childNodes[1]
+        content = cast(Element, cast(Element, nodes.item(1)).childNodes.item(3)).childNodes.item(1)
 
-    return content
+    return cast(Element, content)
 
 
 def compareable_url(url: str) -> str:

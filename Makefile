@@ -15,7 +15,7 @@ help:
 	@echo "  PORT              Set the port for running the API server, defaults to 8080."
 
 .PHONY: setup-python
-setup-python: ## Set up Python environment using pyenv
+setup-python:
 	@if pyenv versions --bare | grep -q "$$(cat .python-version)"; then \
 		echo "Python version $$(cat .python-version) is already installed."; \
 	else \
@@ -24,7 +24,7 @@ setup-python: ## Set up Python environment using pyenv
 	@pyenv local "$$(cat .python-version)"
 
 .PHONY: install
-install: ## Install the project dependencies (set REQUIREMENTS to 'production' for only production dependencies)
+install:
 	@echo ">>> Updating poetry.lock based on pyproject.toml..."
 	@poetry lock
 	@echo ">>> Synchronizing virtual environment with the updated lock file..."
@@ -35,17 +35,17 @@ install: ## Install the project dependencies (set REQUIREMENTS to 'production' f
 	fi
 
 .PHONY: clean-install
-clean-install: ## Clean up the project dependencies and recreate the virtual environment
+clean-install:
 	@rm -rf .venv
 	@poetry cache clear --all pypi
 	@$(MAKE) install REQUIREMENTS=$(REQUIREMENTS)
 
 .PHONY: update
-update: ## Update all dependencies without fixed version in pyproject.toml
+update:
 	@poetry update $(args)
 
 .PHONY: update-dependency
-update-dependency: ## Update a specific dependency in pyproject.toml. Set 'package' argument to specify the package name. The 'force' will update the package to the latest version regardless of it having a fixed version in pyproject.toml.
+update-dependency:
 	@if [ -z "$(package)" ]; then \
 		echo "package is required"; \
 	else \
@@ -63,3 +63,10 @@ run-chunking-pipeline:
 .PHONY: run-ingestion-pipeline
 run-ingestion-pipeline:
 	@poetry run python -m data_ingestion.pipelines.ingestion_pipeline
+
+.PHONY: lint-check
+lint-check: 
+	@echo "Starting ruff check:"
+	@poetry run ruff check $(sources)
+	@echo "Starting mypy check:"
+	@poetry run mypy $(sources)

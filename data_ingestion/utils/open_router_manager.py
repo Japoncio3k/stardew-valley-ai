@@ -1,4 +1,6 @@
 import os
+from collections.abc import Callable
+from typing import Any
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -6,13 +8,13 @@ from langchain_openai import ChatOpenAI
 from data_ingestion.utils.print_with_timestamp import print_with_timestamp
 
 
-def singleton(class_):
-    instances = {}
+def singleton[C](class_: Callable[..., C]) -> Callable[..., C]:
+    instances: dict[int, C] = {}
 
-    def getinstance(*args, **kwargs):
-        if class_ not in instances:
-            instances[class_] = class_(*args, **kwargs)
-        return instances[class_]
+    def getinstance(*args: Any, **kwargs: Any) -> C:
+        if id(class_) not in instances:
+            instances[id(class_)] = class_(*args, **kwargs)
+        return instances[id(class_)]
 
     return getinstance
 
@@ -26,9 +28,9 @@ class OpenRouterManager:
     # llm_model: str = "openai/gpt-oss-20b:free"
     base_url: str = "https://openrouter.ai/api/v1"
 
-    def __init__(self):
+    def __init__(self) -> None:
         load_dotenv()
-        self.keys = os.environ.get("OPEN_ROUTER_KEYS").split(",")
+        self.keys = os.environ["OPEN_ROUTER_KEYS"].split(",")
         os.environ["OPENAI_API_KEY"] = self.keys[self.index]
         self.index = 0
         self.llm = ChatOpenAI(
@@ -37,7 +39,7 @@ class OpenRouterManager:
             base_url=self.base_url,
         )
 
-    def set_next_key(self):
+    def set_next_key(self) -> None:
         self.index += 1
         os.environ["OPENAI_API_KEY"] = self.keys[self.index]
         print_with_timestamp("Switched to next OpenRouter key")
