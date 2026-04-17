@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.mock import db
-from app.tests.conftest import VALID_USER
+from tests.conftest import VALID_USER
 
 
 def _register(client: TestClient) -> None:
@@ -36,7 +36,7 @@ def test_login_missing_required_field(client: TestClient) -> None:
 
 
 def test_login_account_locked(client: TestClient) -> None:
-    from app.main import app
+    from app.api.main import app
 
     _register(client)
     # Trigger 5 failed attempts to lock the IP

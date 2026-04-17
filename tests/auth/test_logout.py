@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from app.mock import db
-from app.tests.conftest import VALID_USER
+from tests.conftest import VALID_USER
 
 
 def _register_and_login(client: TestClient) -> dict[str, str]:

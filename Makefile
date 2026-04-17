@@ -76,5 +76,5 @@ run-api: ## Run the API server (set PORT to specify port, default is 8080)
 ifdef PORT
 	@bash -c 'poetry run uvicorn app.api.main:app --reload --host 0.0.0.0 --port $(PORT)'
 else
-	@bash -c 'poetry run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080'
+	@bash -c 'poetry run uvicorn app.api.main:app --reload --host 0.0.0.0 --port 8080'
 endif

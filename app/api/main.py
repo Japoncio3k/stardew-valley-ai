@@ -5,8 +5,9 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler  # type: ignore[attr-defined, unused-ignore]
 from slowapi.errors import RateLimitExceeded
 
-from app.routers import auth, users
-from app.security.rate_limiter import limiter
+from app.api.auth.router import router as auth_router
+from app.api.users.router import router as users_router
+from app.core.security.rate_limiter import limiter
 
 logging.basicConfig(level=logging.INFO)
 
@@ -20,5 +21,5 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
     return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
-app.include_router(users.router, prefix="/users")
-app.include_router(auth.router, prefix="/auth")
+app.include_router(users_router, prefix="/users")
+app.include_router(auth_router, prefix="/auth")

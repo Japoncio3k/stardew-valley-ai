@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request
 
-from app.schemas.user import UserCreate, UserResponse
-from app.security.rate_limiter import limiter
-from app.services import user_service
+from app.api.users import service as user_service
+from app.api.users.schemas import UserCreate, UserResponse
+from app.core.security.rate_limiter import limiter
 
 router = APIRouter()
 

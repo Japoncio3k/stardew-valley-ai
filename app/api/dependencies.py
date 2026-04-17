@@ -4,7 +4,7 @@ from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError
 
-from app.security.jwt import decode_token
+from app.core.security.jwt import decode_token
 
 security = HTTPBearer()
 

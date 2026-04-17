@@ -1,8 +1,8 @@
 import logging
 import uuid
 
+from app.core.security.hashing import hash_password
 from app.mock import db
-from app.security.hashing import hash_password
 
 logger = logging.getLogger(__name__)
 

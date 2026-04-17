@@ -3,7 +3,7 @@ from collections.abc import Generator
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.api.main import app
 from app.mock import db
 
 VALID_USER = {

@@ -2,10 +2,10 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from app.dependencies import get_client_ip
-from app.schemas.token import LoginRequest, RefreshRequest, TokenResponse
-from app.security.rate_limiter import limiter
-from app.services import auth_service
+from app.api.auth import service as auth_service
+from app.api.auth.schemas import LoginRequest, RefreshRequest, TokenResponse
+from app.api.dependencies import get_client_ip
+from app.core.security.rate_limiter import limiter
 
 router = APIRouter()
 
@@ -46,7 +46,7 @@ async def logout(request: Request) -> dict[str, Any]:
     if not auth_header or not auth_header.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Authorization header missing or invalid")
 
-    token = auth_header[len("Bearer "):]
+    token = auth_header[len("Bearer ") :]
     ip = get_client_ip(request)
 
     success = auth_service.logout(token, ip)
