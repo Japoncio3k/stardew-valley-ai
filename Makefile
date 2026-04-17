@@ -1,4 +1,4 @@
-sources = data_ingestion
+sources = data_ingestion app
 pypath = .
 test_db_containers = test-db
 all_db_containers = db graph-db $(test_db_containers)
@@ -70,3 +70,15 @@ lint-check:
 	@poetry run ruff check $(sources)
 	@echo "Starting mypy check:"
 	@poetry run mypy $(sources)
+
+.PHONY: test
+test: ## Run tests
+	@poetry run pytest
+
+.PHONY: run-api
+run-api: ## Run the API server (set PORT to specify port, default is 8080)
+ifdef PORT
+	@bash -c 'poetry run uvicorn app.api.main:app --reload --host 0.0.0.0 --port $(PORT)'
+else
+	@bash -c 'poetry run uvicorn app.api.main:app --reload --host 0.0.0.0 --port 8080'
+endif
