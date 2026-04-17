@@ -71,6 +71,10 @@ lint-check:
 	@echo "Starting mypy check:"
 	@poetry run mypy $(sources)
 
+.PHONY: test
+test: ## Run tests
+	@poetry run pytest
+
 .PHONY: run-api
 run-api: ## Run the API server (set PORT to specify port, default is 8080)
 ifdef PORT
