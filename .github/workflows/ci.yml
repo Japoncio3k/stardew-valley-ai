@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+    branches: ["*"]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Lint (ruff)
+        run: poetry run ruff check .
+
+      - name: Type check (mypy)
+        run: poetry run mypy .
+
+      - name: Tests (pytest)
+        run: poetry run pytest
