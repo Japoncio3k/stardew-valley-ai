@@ -7,9 +7,9 @@ from langchain_core.prompts.chat import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel, RunnableSerializable
 from unstructured.documents.elements import Element as UnstructuredElement
 
+from common.utils.open_router_manager import OpenRouterManager
 from data_ingestion.models.chunk_metadata import ChunkMetadata
 from data_ingestion.models.strings_to_ignore import strings_to_ignore
-from data_ingestion.utils.open_router_manager import OpenRouterManager
 from data_ingestion.utils.print_with_timestamp import print_with_timestamp
 
 
@@ -49,9 +49,9 @@ def create_chain(chunk: UnstructuredElement) -> RunnableSerializable[Any, Any]:
 
     assert content is not None
     prompt = generate_enrichment_prompt(content, is_table)
-    chain = ChatPromptTemplate.from_template(
-        prompt
-    ) | OpenRouterManager().llm.with_structured_output(schema=ChunkMetadata)
+    chain = ChatPromptTemplate.from_template(prompt) | OpenRouterManager().llm.with_structured_output(
+        schema=ChunkMetadata
+    )
     return chain
 
 
@@ -68,9 +68,7 @@ def enrich_chunk(chunk: UnstructuredElement, iterations: int = 0) -> ChunkMetada
         current_time = time.time()
         metadata_obj: ChunkMetadata = OpenRouterManager().llm.invoke(prompt)  # type:ignore
         date = datetime.now().strftime("%H:%M:%S")
-        print(
-            f"[{date}] Generated Metadata in {time.time() - current_time:.2f} seconds."
-        )
+        print(f"[{date}] Generated Metadata in {time.time() - current_time:.2f} seconds.")
         return metadata_obj
     except Exception as e:
         print(f"  - Error enriching chunk: {e}")
@@ -81,18 +79,14 @@ def enrich_chunk(chunk: UnstructuredElement, iterations: int = 0) -> ChunkMetada
         raise e
 
 
-def enrich_page_chunks(
-    chunks: list[UnstructuredElement], url: str
-) -> list[dict[str, Any]]:
+def enrich_page_chunks(chunks: list[UnstructuredElement], url: str) -> list[dict[str, Any]]:
     """Enriches a list of chunks with LLM-generated metadata."""
     enriched_chunks = []
 
     if url == "/stardew_valley_wiki":
         return [
             {
-                "content": chunk.metadata.text_as_html
-                if "text_as_html" in chunk.metadata.to_dict()
-                else chunk.text,
+                "content": chunk.metadata.text_as_html if "text_as_html" in chunk.metadata.to_dict() else chunk.text,
                 "source": url,
             }
             for chunk in chunks
@@ -108,24 +102,18 @@ def enrich_page_chunks(
         chunks_to_enrich.append(chunk)
 
     for index2, chunk in enumerate(chunks_to_enrich):
-        print_with_timestamp(
-            f"Generating chain for chunk {index2 + 1}/{len(chunks_to_enrich)}..."
-        )
+        print_with_timestamp(f"Generating chain for chunk {index2 + 1}/{len(chunks_to_enrich)}...")
 
         chains[str(index2)] = create_chain(chunk)
         inputs[str(index2)] = "."
 
     print_with_timestamp(f"Running {len(chunks)} enrichment chains in parallel...")
     current_time = time.time()
-    runnable = RunnableParallel(chains).with_retry(
-        stop_after_attempt=3, retry_if_exception_type=(ValueError,)
-    )
+    runnable = RunnableParallel(chains).with_retry(stop_after_attempt=3, retry_if_exception_type=(ValueError,))
 
     results = runnable.invoke(inputs)
 
-    print_with_timestamp(
-        f"Completed enrichment of all chunks in {time.time() - current_time:.2f} seconds.."
-    )
+    print_with_timestamp(f"Completed enrichment of all chunks in {time.time() - current_time:.2f} seconds..")
 
     for index2, chunk in enumerate(chunks_to_enrich):
         is_table = "text_as_html" in chunk.metadata.to_dict()
