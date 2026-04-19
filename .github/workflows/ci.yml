@@ -22,11 +22,8 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Lint (ruff)
-        run: poetry run ruff check .
+      - name: Run linters
+        run: make lint-check
 
-      - name: Type check (mypy)
-        run: poetry run mypy .
-
-      - name: Tests (pytest)
-        run: poetry run pytest
+      - name: Run tests
+        run: DISABLE_TEST_LOG_CLI=true make test
