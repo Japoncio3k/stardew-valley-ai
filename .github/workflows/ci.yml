@@ -26,4 +26,4 @@ jobs:
         run: make lint-check
 
       - name: Run tests
-        run: DISABLE_TEST_LOG_CLI=true make test
+        run: make test
