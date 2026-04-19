@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler  # type: ignore[attr-defined, unused-ignore]
 from slowapi.errors import RateLimitExceeded
 
+from app.api.agent.router import router as agent_router
 from app.api.auth.router import router as auth_router
 from app.api.users.router import router as users_router
 from app.core.security.rate_limiter import limiter
@@ -23,3 +24,4 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
 app.include_router(users_router, prefix="/users")
 app.include_router(auth_router, prefix="/auth")
+app.include_router(agent_router, prefix="/agent")
