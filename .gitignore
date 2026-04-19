@@ -3,7 +3,7 @@
 .mypy_cache/
 __pycache__/
 .vscode
-.claude
+.claude/settings.local.json
 output
 used_files.json
 data.json
