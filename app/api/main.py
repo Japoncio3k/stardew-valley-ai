@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler  # type: ignore[attr-defined, unused-ignore]
 from slowapi.errors import RateLimitExceeded
@@ -13,6 +14,13 @@ from app.core.security.rate_limiter import limiter
 logging.basicConfig(level=logging.INFO)
 
 app = FastAPI(title="Stardew Valley AI API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 
